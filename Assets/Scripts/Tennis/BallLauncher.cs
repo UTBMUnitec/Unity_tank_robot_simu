@@ -127,7 +127,6 @@ public class BallLauncher : MonoBehaviour
             
             currentLaunchBall.position = currentPosition;
             
-            // Orient the ball to follow the trajectory
             if (elapsed > Time.deltaTime)
             {
                 Vector3 lastPos = currentLaunchBall.position - currentLaunchBall.forward;
@@ -149,24 +148,20 @@ public class BallLauncher : MonoBehaviour
     
     private float CalculateTennisBounceHeight(float normalizedTime)
     {
-        // Use the height curve if available
         if (heightCurve != null && heightCurve.length > 0)
         {
             return heightCurve.Evaluate(normalizedTime) * launchHeight;
         }
         
-        // Otherwise use a simple piecewise function for tennis-like bounce
         float height;
         
         if (normalizedTime < bounceDistance)
         {
-            // First arc (up and down to bounce)
             float t = normalizedTime / bounceDistance;
             height = initialHeight * 4 * t * (1 - t);
         }
         else
         {
-            // Second arc (bounce up and to target)
             float t = (normalizedTime - bounceDistance) / (1 - bounceDistance);
             height = initialHeight * bounceStrength * 4 * t * (1 - t);
         }
@@ -202,7 +197,6 @@ public class BallLauncher : MonoBehaviour
                 previousPos = currentPosition;
             }
             
-            // Draw the bounce point
             Gizmos.color = Color.red;
             Gizmos.DrawSphere(bouncePos, 0.1f);
         }
