@@ -45,11 +45,6 @@ public class TennisRobotController : MonoBehaviour
         ApplyVelocity();
     }
     
-    /// <summary>
-    /// Sets the robot's velocity commands
-    /// </summary>
-    /// <param name="linear">Linear velocity in m/s</param>
-    /// <param name="angular">Angular velocity in degrees/s</param>
     public void SetVelocity(float linear, float angular)
     {
         linearVelocity = Mathf.Clamp(linear, -maxLinearSpeed, maxLinearSpeed);

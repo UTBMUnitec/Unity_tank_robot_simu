@@ -10,7 +10,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 4350874406377604858, guid: db6cb79803d99de41ae15f15a875d281, type: 3}
       propertyPath: m_Name
-      value: TenisBall Variant
+      value: TenisBall
       objectReference: {fileID: 0}
     - target: {fileID: 4350874406377604858, guid: db6cb79803d99de41ae15f15a875d281, type: 3}
       propertyPath: m_StaticEditorFlags
@@ -67,6 +67,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 4350874406377604858, guid: db6cb79803d99de41ae15f15a875d281, type: 3}
       insertIndex: -1
       addedObject: {fileID: 3352451635883591562}
+    - targetCorrespondingSourceObject: {fileID: 4350874406377604858, guid: db6cb79803d99de41ae15f15a875d281, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -5151612825531949822}
   m_SourcePrefab: {fileID: 100100000, guid: db6cb79803d99de41ae15f15a875d281, type: 3}
 --- !u!1 &3753766571264492912 stripped
 GameObject:
@@ -97,9 +100,9 @@ Rigidbody:
   m_ImplicitTensor: 1
   m_UseGravity: 1
   m_IsKinematic: 0
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_Constraints: 0
-  m_CollisionDetection: 0
+  m_CollisionDetection: 2
 --- !u!135 &3352451635883591562
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -121,3 +124,16 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.035
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &-5151612825531949822
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3753766571264492912}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d982293e28381e438cd94ed5933a0ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  collectAnimationDuration: 0.05
