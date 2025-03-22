@@ -1706,7 +1706,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tennisBallPrefab: {fileID: 3753766571264492912, guid: 10df20965251e0a40ae9c9c1ebd548bd, type: 3}
-  numberOfBalls: 5
+  numberOfBalls: 6
   tennisBallsList: []
 --- !u!65 &512883627
 BoxCollider:
@@ -2431,7 +2431,7 @@ MonoBehaviour:
   - {fileID: 352508734}
   - {fileID: 1107459955}
   - {fileID: 1572492837}
-  previousCameraKey: 97
+  previousCameraKey: 113
   nextCameraKey: 101
   reloadSceneKey: 114
 --- !u!114 &605760506
@@ -7695,6 +7695,11 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   launchKey: 32
+  initialVelocity: 8
+  adjustDurationByDistance: 1
+  distanceSpeedFactor: 0.2
+  bounceVelocityLoss: 0.3
+  spinEffect: 0.2
   bounceDistance: 0.6
   initialHeight: 2
   bounceStrength: 0.5
@@ -8014,7 +8019,7 @@ Transform:
   m_GameObject: {fileID: 1898892564}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 11.24, y: 0.4, z: -4.85}
+  m_LocalPosition: {x: 11.11, y: 0.4, z: -2.25}
   m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 1
   m_Children: []

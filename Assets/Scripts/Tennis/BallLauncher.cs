@@ -12,11 +12,18 @@ public class BallLauncher : MonoBehaviour
     [SerializeField] private AnimationCurve heightCurve;
     [SerializeField] private KeyCode launchKey = KeyCode.Space;
     
+    [Header("Physics Settings")]
+    [SerializeField] private float initialVelocity = 8f;
+    [SerializeField] private bool adjustDurationByDistance = true;
+    [SerializeField] private float distanceSpeedFactor = 0.2f;
+    [SerializeField] private float bounceVelocityLoss = 0.3f;
+    [SerializeField] private float spinEffect = 0.2f;
+    
     [Header("Tennis Bounce Settings")]
-    [SerializeField] private float bounceDistance = 0.6f; // 0-1 value, position of bounce between start and target
-    [SerializeField] private float initialHeight = 2f; // Initial upward trajectory height
-    [SerializeField] private float bounceStrength = 0.5f; // How strong the bounce is (0-1)
-    [SerializeField] private float groundLevel = 0.1f; // Y position of the ground
+    [SerializeField] private float bounceDistance = 0.6f;
+    [SerializeField] private float initialHeight = 2f;
+    [SerializeField] private float bounceStrength = 0.5f;
+    [SerializeField] private float groundLevel = 0.1f;
     
     [Header("Debug")]
     [SerializeField] private bool showTrajectory = true;
@@ -105,7 +112,7 @@ public class BallLauncher : MonoBehaviour
     private IEnumerator LaunchBallCoroutine()
     {
         TennisBall ball = currentLaunchBall.GetComponent<TennisBall>();
-        
+        ball.transform.GetComponent<SphereCollider>().enabled = true;
         currentLaunchBall.SetParent(null);
         
         Vector3 startPos = transform.position + transform.forward * 0.5f + Vector3.up * 0.5f;
@@ -113,13 +120,44 @@ public class BallLauncher : MonoBehaviour
         Vector3 bouncePos = Vector3.Lerp(startPos, targetPos, bounceDistance);
         bouncePos.y = groundLevel;
         
-        float elapsed = 0f;
+        float distanceToTarget = Vector3.Distance(new Vector3(startPos.x, 0, startPos.z), 
+                                                 new Vector3(targetPos.x, 0, targetPos.z));
         
-        while (elapsed < launchDuration)
+        float actualLaunchDuration = launchDuration;
+        if (adjustDurationByDistance)
         {
-            float normalizedTime = elapsed / launchDuration;
+            actualLaunchDuration = distanceToTarget / initialVelocity;
+            actualLaunchDuration = Mathf.Clamp(actualLaunchDuration, 1.0f, 3.0f);
+        }
+        
+        float elapsed = 0f;
+        Vector3 lastPosition = startPos;
+        
+        while (elapsed < actualLaunchDuration)
+        {
+            float normalizedTime = elapsed / actualLaunchDuration;
             
-            Vector3 horizontalPosition = Vector3.Lerp(startPos, targetPos, normalizedTime);
+            float currentVelocity = initialVelocity;
+            if (normalizedTime > bounceDistance)
+            {
+                currentVelocity *= (1f - bounceVelocityLoss);
+            }
+            
+            if (normalizedTime < 0.1f)
+            {
+                currentVelocity *= normalizedTime / 0.1f;
+            }
+            
+            float horizontalProgress = Mathf.Pow(normalizedTime, 0.9f);
+            Vector3 horizontalPosition = Vector3.Lerp(startPos, targetPos, horizontalProgress);
+            
+            if (normalizedTime > bounceDistance && normalizedTime < 0.9f)
+            {
+                float spinFactor = (normalizedTime - bounceDistance) / (0.9f - bounceDistance);
+                float lateralOffset = spinEffect * spinFactor * (1f - spinFactor) * distanceToTarget * 0.05f;
+                
+                horizontalPosition += transform.right * lateralOffset;
+            }
             
             float heightOffset = CalculateTennisBounceHeight(normalizedTime);
             Vector3 currentPosition = horizontalPosition;
@@ -127,16 +165,15 @@ public class BallLauncher : MonoBehaviour
             
             currentLaunchBall.position = currentPosition;
             
-            if (elapsed > Time.deltaTime)
+            Vector3 direction = (currentPosition - lastPosition).normalized;
+            if (direction != Vector3.zero)
             {
-                Vector3 lastPos = currentLaunchBall.position - currentLaunchBall.forward;
-                Vector3 direction = currentPosition - lastPos;
-                if (direction != Vector3.zero)
-                {
-                    currentLaunchBall.forward = direction.normalized;
-                }
+                currentLaunchBall.forward = direction;
+                
+                currentLaunchBall.Rotate(Vector3.forward, currentVelocity * 30f * Time.deltaTime, Space.Self);
             }
             
+            lastPosition = currentPosition;
             elapsed += Time.deltaTime;
             yield return null;
         }
@@ -178,15 +215,28 @@ public class BallLauncher : MonoBehaviour
             Vector3 bouncePos = Vector3.Lerp(startPos, targetPos, bounceDistance);
             bouncePos.y = groundLevel;
             
+            float distanceToTarget = Vector3.Distance(new Vector3(startPos.x, 0, startPos.z), 
+                                                     new Vector3(targetPos.x, 0, targetPos.z));
+            
             Gizmos.color = trajectoryColor;
             
             Vector3 previousPos = startPos;
+            Vector3 lastDrawnPoint = startPos;
             
             for (int i = 1; i <= trajectorySteps; i++)
             {
                 float normalizedTime = (float)i / trajectorySteps;
                 
-                Vector3 horizontalPosition = Vector3.Lerp(startPos, targetPos, normalizedTime);
+                float horizontalProgress = Mathf.Pow(normalizedTime, 0.9f);
+                Vector3 horizontalPosition = Vector3.Lerp(startPos, targetPos, horizontalProgress);
+                
+                if (normalizedTime > bounceDistance && normalizedTime < 0.9f)
+                {
+                    float spinFactor = (normalizedTime - bounceDistance) / (0.9f - bounceDistance);
+                    float lateralOffset = spinEffect * spinFactor * (1f - spinFactor) * distanceToTarget * 0.05f;
+                    
+                    horizontalPosition += transform.right * lateralOffset;
+                }
                 
                 float heightOffset = CalculateTennisBounceHeight(normalizedTime);
                 Vector3 currentPosition = horizontalPosition;
@@ -195,6 +245,12 @@ public class BallLauncher : MonoBehaviour
                 Gizmos.DrawLine(previousPos, currentPosition);
                 
                 previousPos = currentPosition;
+                lastDrawnPoint = currentPosition;
+            }
+            
+            if (Vector3.Distance(lastDrawnPoint, targetPos) > 0.1f)
+            {
+                Gizmos.DrawLine(lastDrawnPoint, targetPos);
             }
             
             Gizmos.color = Color.red;
